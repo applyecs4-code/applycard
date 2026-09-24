@@ -1,0 +1,34 @@
+# Turn on Rewrite Engine
+RewriteEngine On
+
+# X-Robots-Tag header
+Header set X-Robots-Tag "index, follow"
+
+# WWW to non-WWW redirect
+RewriteCond %{HTTP_HOST} ^www\.applyecscard\.co\.uk [NC]
+RewriteRule ^(.*)$ https://applyecscard.co.uk/$1 [R=301,L]
+
+# 1. Don't touch /blog (WordPress ka folder)
+RewriteRule ^blog/ - [L]
+
+# 2. Redirect /page.html -> /page (SEO friendly)
+RewriteCond %{THE_REQUEST} "\s/+(.+?)\.html[\s?]"
+RewriteRule ^ %1 [R=301,L]
+
+# 3. /page ko internally /page.html se serve karo
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.+)$ $1.html [L]
+
+# 4. Allow larger file uploads for booking form (ID document + photo)
+# Works only if PHP runs as an Apache module (mod_php). If your host uses
+# PHP-FPM / CGI, set these values instead in your hosting control panel
+# or in a php.ini / .user.ini file (upload_max_filesize, post_max_size).
+<IfModule mod_php.c>
+  php_value upload_max_filesize 25M
+  php_value post_max_size 30M
+  php_value max_execution_time 300
+  php_value max_input_time 300
+  php_value memory_limit 128M
+</IfModule>
